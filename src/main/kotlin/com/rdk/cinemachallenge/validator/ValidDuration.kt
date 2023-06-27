@@ -19,14 +19,14 @@ annotation class ValidDuration(
 
 class ValidDurationValidator : ConstraintValidator<ValidDuration, String> {
     override fun isValid(duration: String?, context: ConstraintValidatorContext?): Boolean =
-        duration?.let {
+        duration?.ifBlank { null }?.let {
             try { // room to improve - validate by regex
                 it.toDuration()
                 true
             } catch (ex: Exception) {
                 false
             }
-        } ?: true //nulls will be handled by other validator
+        } ?: true //nulls and blanks will be handled by other validator
 
 }
 

@@ -19,8 +19,6 @@ import org.mockito.kotlin.*
 import java.time.Duration
 import java.time.LocalDate
 import java.util.*
-import kotlin.ConcurrentModificationException
-import kotlin.NoSuchElementException
 
 
 class SchedulingServiceTest {
@@ -203,209 +201,6 @@ class SchedulingServiceTest {
         verify(showRepository).removeShow(showId)
     }
 
-    @Test
-    fun `test rescheduling a show`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        var newShow: Show? = null
-        val show = Show(room, movie, today.atTime(18, 0))
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0)
-        whenever(showRepository.addShow(any(), eq(0))).thenAnswer {
-            newShow = (it.arguments[0] as? Show)
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        val result = testee.rescheduleShow(show.id, showtime)
-
-        assertNotNull(newShow)
-        assertEquals(newShow?.id?.toString(), result)
-        verify(showRepository, times(1)).getShowVersion(room.id, today)
-        verify(showRepository, times(1)).addShow(newShow!!, 0)
-    }
-
-
-    @Test
-    fun `test rescheduling concurent retry 3 times`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        val show = Show(room, movie, today.atTime(18, 0))
-        var newShow: Show? = null
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0, 1, 2)
-        whenever(showRepository.addShow(any(), any())).thenThrow(ConcurrentModificationException())
-        whenever(showRepository.addShow(any(), eq(2))).thenAnswer {
-            newShow = (it.arguments[0] as? Show)
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        val result = testee.rescheduleShow(show.id, showtime)
-
-        assertNotNull(newShow)
-        assertEquals(newShow?.id?.toString(), result)
-        verify(showRepository, times(3)).getShowVersion(room.id, today)
-        verify(showRepository, times(3)).addShow(any(), any())
-    }
-
-    @Test
-    fun `test rescheduling concurent retry 3 times and fail`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        val show = Show(room, movie, today.atTime(18, 0))
-        var newShow: Show? = null
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0, 1, 2, 3, 4, 5, 6)
-        whenever(showRepository.addShow(any(), any())).thenThrow(ConcurrentModificationException())
-        whenever(showRepository.addShow(any(), eq(3))).then {
-            newShow = it.arguments[0] as Show
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        assertThrows(ConcurrentModificationException::class.java) {
-            testee.rescheduleShow(show.id, showtime)
-        }
-
-        assertNull(newShow)
-        verify(showRepository, times(3)).getShowVersion(room.id, today)
-        verify(showRepository, times(3)).addShow(any(), any())
-    }
-
-    @Test
-    fun `test moving a show`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        var newShow: Show? = null
-        val show = Show(room(10), movie, showtime)
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0)
-        whenever(showRepository.addShow(any(), eq(0))).thenAnswer {
-            newShow = (it.arguments[0] as? Show)
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        val result = testee.moveShow(show.id, room.id)
-
-        assertNotNull(newShow)
-        assertEquals(newShow?.id?.toString(), result)
-        verify(roomRepository).getOne(room.id)
-        verify(showRepository, times(1)).getShowVersion(room.id, today)
-        verify(showRepository, times(1)).addShow(newShow!!, 0)
-    }
-
-
-    @Test
-    fun `test moving concurent retry 3 times`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        val show = Show(room(10), movie, showtime)
-        var newShow: Show? = null
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0, 1, 2)
-        whenever(showRepository.addShow(any(), any())).thenThrow(ConcurrentModificationException())
-        whenever(showRepository.addShow(any(), eq(2))).thenAnswer {
-            newShow = (it.arguments[0] as? Show)
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        val result = testee.moveShow(show.id, room.id)
-
-        assertNotNull(newShow)
-        assertEquals(newShow?.id?.toString(), result)
-        verify(showRepository, times(3)).getShowVersion(room.id, today)
-        verify(showRepository, times(3)).addShow(any(), any())
-    }
-
-    @Test
-    fun `test moving concurent retry 3 times and fail`() {
-        val room = room()
-        val movie = movie(5, Duration.ofMinutes(60L))
-        val today = LocalDate.now()
-        val showtime = today.atTime(20, 0)
-
-        val show = Show(room(10), movie, showtime)
-        var newShow: Show? = null
-
-        whenever(showRepository.getShow(show.id)).thenReturn(show)
-        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0, 1, 2, 3, 4, 5, 6)
-        whenever(showRepository.addShow(any(), any())).thenThrow(ConcurrentModificationException())
-        whenever(showRepository.addShow(any(), eq(3))).then {
-            newShow = it.arguments[0] as Show
-            newShow?.id
-        }
-
-        whenever(roomRepository.getOne(room.id)).thenReturn(room)
-        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
-
-        scheduleValidators.forEach {
-            whenever(it.validate(any(), any(), any())).thenReturn(null)
-        }
-
-        assertThrows(ConcurrentModificationException::class.java) {
-            testee.moveShow(show.id, room.id)
-        }
-
-        assertNull(newShow)
-        verify(showRepository, times(3)).getShowVersion(room.id, today)
-        verify(showRepository, times(3)).addShow(any(), any())
-    }
-
 
     @Test
     fun `test changing a show`() {
@@ -433,6 +228,71 @@ class SchedulingServiceTest {
         }
 
         val result = testee.changeShow(show.id, room.id, showtime)
+
+        assertNotNull(newShow)
+        assertEquals(newShow?.id?.toString(), result)
+        verify(roomRepository).getOne(room.id)
+        verify(showRepository, times(1)).getShowVersion(room.id, today)
+        verify(showRepository, times(1)).addShow(newShow!!, 0)
+    }
+    @Test
+    fun `test changing a show room only`() {
+        val room = room()
+        val movie = movie(5, Duration.ofMinutes(60L))
+        val today = LocalDate.now()
+        val showtime = today.atTime(20, 0)
+
+        var newShow: Show? = null
+        val show = Show(room, movie, today.atTime(18, 0))
+
+        whenever(showRepository.getShow(show.id)).thenReturn(show)
+
+        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0)
+        whenever(showRepository.addShow(any(), eq(0))).thenAnswer {
+            newShow = (it.arguments[0] as? Show)
+            newShow?.id
+        }
+
+        whenever(roomRepository.getOne(room.id)).thenReturn(room)
+        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
+
+        scheduleValidators.forEach {
+            whenever(it.validate(any(), any(), any())).thenReturn(null)
+        }
+
+        val result = testee.changeShow(showId = show.id, newStartTime = showtime)
+
+        assertNotNull(newShow)
+        assertEquals(newShow?.id?.toString(), result)
+        verify(showRepository, times(1)).getShowVersion(room.id, today)
+        verify(showRepository, times(1)).addShow(newShow!!, 0)
+    }
+
+    @Test
+    fun `test changing a show time only`() {
+        val room = room()
+        val movie = movie(5, Duration.ofMinutes(60L))
+        val today = LocalDate.now()
+
+        var newShow: Show? = null
+        val show = Show(room(10), movie, today.atTime(18, 0))
+
+        whenever(showRepository.getShow(show.id)).thenReturn(show)
+
+        whenever(showRepository.getShowVersion(room.id, today)).thenReturn(0)
+        whenever(showRepository.addShow(any(), eq(0))).thenAnswer {
+            newShow = (it.arguments[0] as? Show)
+            newShow?.id
+        }
+
+        whenever(roomRepository.getOne(room.id)).thenReturn(room)
+        whenever(movieRepository.getOne(movie.id)).thenReturn(movie)
+
+        scheduleValidators.forEach {
+            whenever(it.validate(any(), any(), any())).thenReturn(null)
+        }
+
+        val result = testee.changeShow(show.id, room.id)
 
         assertNotNull(newShow)
         assertEquals(newShow?.id?.toString(), result)

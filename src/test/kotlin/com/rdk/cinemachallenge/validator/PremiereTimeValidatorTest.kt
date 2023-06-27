@@ -1,11 +1,11 @@
 package com.rdk.cinemachallenge.validator
 
 import com.rdk.cinemachallenge.testutils.TestObjectProducer
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 class PremiereTimeValidatorTest {
     private val testee = PremiereTimeValidator("17:00", "21:00")
@@ -77,6 +77,7 @@ class PremiereTimeValidatorTest {
 
         assertNotNull(result)
     }
+
     @Test
     fun `test end of day after`() {
         val showtime = today.atTime(22, 0)

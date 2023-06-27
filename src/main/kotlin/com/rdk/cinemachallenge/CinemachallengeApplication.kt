@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class CinemachallengeApplication
 
 fun main(args: Array<String>) {
-	runApplication<CinemachallengeApplication>(*args)
+    runApplication<CinemachallengeApplication>(*args)
 }

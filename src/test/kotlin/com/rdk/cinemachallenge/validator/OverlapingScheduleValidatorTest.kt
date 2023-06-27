@@ -4,7 +4,8 @@ import com.rdk.cinemachallenge.model.Show
 import com.rdk.cinemachallenge.model.ShowRepository
 import com.rdk.cinemachallenge.testutils.TestObjectProducer.movie
 import com.rdk.cinemachallenge.testutils.TestObjectProducer.room
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

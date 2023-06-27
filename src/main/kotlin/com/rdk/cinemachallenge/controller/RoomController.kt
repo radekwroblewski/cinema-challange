@@ -18,7 +18,7 @@ class RoomController(
     private val roomService: RoomService
 ) {
 
-    @GetMapping("/")
+    @GetMapping
     fun getAllRooms() =
         roomService.getAllRooms()
 
@@ -26,11 +26,11 @@ class RoomController(
     fun getRoom(@PathVariable @NotBlank @ValidUUID roomId: String) =
         roomService.getRoom(UUID.fromString(roomId))
 
-    @PostMapping("/")
+    @PostMapping
     fun addRoom(@RequestBody @Valid body: AddRoomDTO) =
         roomService.addRoom(
-            name = body.name,
-            cleaningDuration = body.cleaningDuration.toDuration(),
+            name = body.name!!,
+            cleaningDuration = body.cleaningDuration!!.toDuration(),
             available3d = body.available3d!!
         )
 
@@ -39,8 +39,8 @@ class RoomController(
         roomService.deleteRoom(UUID.fromString(roomId))
 
     data class AddRoomDTO(
-        @field:NotBlank val name: String,
-        @field:NotBlank @field:ValidDuration val cleaningDuration: String,
+        @field:NotBlank val name: String?,
+        @field:NotBlank @field:ValidDuration val cleaningDuration: String?,
         @field:NotNull val available3d: Boolean?
     )
 }

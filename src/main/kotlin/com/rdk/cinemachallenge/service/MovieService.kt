@@ -16,12 +16,14 @@ class MovieService(
 
     fun getMovie(movieId: UUID): MovieDTO = mapMovie(movieRepository.getOne(movieId))
     fun addMovie(title: String, duration: Duration, requires3d: Boolean, premiere: Boolean): String =
-        movieRepository.add(Movie(
-            title = title,
-            duration = duration,
-            premiere = premiere,
-            requires3D = requires3d
-        )).toString()
+        movieRepository.add(
+            Movie(
+                title = title,
+                duration = duration,
+                premiere = premiere,
+                requires3D = requires3d
+            )
+        ).toString()
 
     fun deleteMovie(movieId: UUID) {
         movieRepository.remove(movieId)

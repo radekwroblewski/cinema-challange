@@ -1,10 +1,10 @@
 package com.rdk.cinemachallenge.model
 
 import com.rdk.cinemachallenge.testutils.TestObjectProducer.movie
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.*
 
 class MovieRepositoryTest {

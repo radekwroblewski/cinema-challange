@@ -14,7 +14,13 @@ fun mapShow(show: Show): ShowDTO =
     )
 
 fun mapMovie(movie: Movie): MovieDTO =
-    MovieDTO(id = movie.id.toString(), title = movie.title, `3d` = movie.requires3D, premiere = movie.premiere, duration = movie.duration.toMinuteString())
+    MovieDTO(
+        id = movie.id.toString(),
+        title = movie.title,
+        `3d` = movie.requires3D,
+        premiere = movie.premiere,
+        duration = movie.duration.toMinuteString()
+    )
 
 fun mapTimePeriod(timePeriod: TimePeriod): TimePeriodDTO =
     TimePeriodDTO(start = timePeriod.startTime.toString(), end = timePeriod.endTime.toString())

@@ -9,10 +9,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.mockito.kotlin.*
-import java.rmi.UnexpectedException
 import java.time.Duration
-import java.util.UUID
-import kotlin.random.Random
+import java.util.*
 
 class RoomServiceTest {
     private lateinit var testee: RoomService
@@ -64,7 +62,7 @@ class RoomServiceTest {
             roomAdded?.id
         }
 
-        val result = testee.addRoom("New and awesome room", true,  Duration.ofMinutes(10L))
+        val result = testee.addRoom("New and awesome room", true, Duration.ofMinutes(10L))
 
         assertNotNull(roomAdded)
         assertEquals(roomAdded?.id?.toString(), result)
@@ -78,7 +76,7 @@ class RoomServiceTest {
     fun `test delete room`() {
         val roomId = UUID.randomUUID()
         whenever(roomRepository.remove(any())).thenAnswer {
-            if (it.arguments[0]!=roomId) {
+            if (it.arguments[0] != roomId) {
                 fail("Not expected here")
             }
         }

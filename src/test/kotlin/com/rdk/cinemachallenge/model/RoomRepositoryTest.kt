@@ -1,10 +1,10 @@
 package com.rdk.cinemachallenge.model
 
 import com.rdk.cinemachallenge.testutils.TestObjectProducer.room
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.*
 
 class RoomRepositoryTest {
@@ -65,36 +65,36 @@ class RoomRepositoryTest {
 
     @Test
     fun `test add and delete all`() {
-            assertTrue(testee.getAll().isEmpty())
+        assertTrue(testee.getAll().isEmpty())
 
-            val rooms = (1..10).map { room(it) }
+        val rooms = (1..10).map { room(it) }
 
-            rooms.forEach(testee::add)
+        rooms.forEach(testee::add)
 
-            assertEquals(10, testee.getAll().size)
+        assertEquals(10, testee.getAll().size)
 
-            rooms.forEach { testee.remove(it.id) }
+        rooms.forEach { testee.remove(it.id) }
 
 
-            assertTrue(testee.getAll().isEmpty())
+        assertTrue(testee.getAll().isEmpty())
     }
 
     @Test
     fun `test add and delete half`() {
-            assertTrue(testee.getAll().isEmpty())
+        assertTrue(testee.getAll().isEmpty())
 
-            val rooms = (1..10).map { room(it) }
+        val rooms = (1..10).map { room(it) }
 
-            rooms.forEach(testee::add)
+        rooms.forEach(testee::add)
 
-            assertEquals(10, testee.getAll().size)
+        assertEquals(10, testee.getAll().size)
 
-            val toDelete = rooms.subList(0, 5)
+        val toDelete = rooms.subList(0, 5)
 
-            toDelete.forEach { testee.remove(it.id) }
+        toDelete.forEach { testee.remove(it.id) }
 
 
-            assertEquals(5, testee.getAll().size)
+        assertEquals(5, testee.getAll().size)
     }
 
 

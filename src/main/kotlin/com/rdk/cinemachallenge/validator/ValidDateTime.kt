@@ -5,7 +5,6 @@ import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import jakarta.validation.Payload
-import org.apache.commons.validator.GenericValidator
 import kotlin.reflect.KClass
 
 @MustBeDocumented
@@ -21,7 +20,12 @@ annotation class ValidDateTime(
 class ValidDateTimeValidator : ConstraintValidator<ValidDateTime, String> {
     override fun isValid(dateTime: String?, context: ConstraintValidatorContext?): Boolean =
         dateTime?.let {
-            GenericValidator.isDate(it, TimeFormatter.DATE_TIME_FORMAT, true)
+            try { // room to improve - validate by regex
+                TimeFormatter.DATE_TIME_FORMATTER.parse(it)
+                true
+            } catch (ex: Exception) {
+                false
+            }
         } ?: true //nulls will be handled by other validator
 
 }

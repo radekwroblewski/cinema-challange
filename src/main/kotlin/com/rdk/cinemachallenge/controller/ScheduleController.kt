@@ -6,7 +6,6 @@ import com.rdk.cinemachallenge.testutils.TimeFormatter.toDate
 import com.rdk.cinemachallenge.testutils.TimeFormatter.toDateTime
 import com.rdk.cinemachallenge.validator.ValidDate
 import com.rdk.cinemachallenge.validator.ValidDateTime
-import com.rdk.cinemachallenge.validator.ValidTime
 import com.rdk.cinemachallenge.validator.ValidUUID
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -21,7 +20,7 @@ class ScheduleController(
     private val schedulingService: SchedulingService
 ) {
 
-    @GetMapping("/room/{roomId}/day/{date}")
+    @GetMapping("/room/{roomId}/date/{date}")
     fun getRoomSchedule(
         @PathVariable @NotBlank @ValidUUID roomId: String,
         @PathVariable @NotNull @ValidDate date: String
@@ -38,46 +37,27 @@ class ScheduleController(
         schedulingService.cancelShow(UUID.fromString(showId))
     }
 
-    @PostMapping("/room/{roomId}/movie/{movieId}/startTime/{startTime}")
+    @PostMapping("/room/{roomId}/movie/{movieId}")
     fun scheduleShow(
         @PathVariable @NotBlank @ValidUUID roomId: String,
         @PathVariable @NotBlank @ValidUUID movieId: String,
-        @PathVariable @ValidDateTime startTime: String
+        @RequestBody @NotBlank @ValidDateTime startTime: String?
     ) =
         schedulingService.scheduleShow(
             movieId = UUID.fromString(movieId), roomId = UUID.fromString(roomId),
-            startTime = startTime.toDateTime()
+            startTime = startTime!!.toDateTime()
         )
 
-    @PutMapping("/show/{showId}/startTime/{startTime}")
-    fun rescheduleShowTime(
-        @PathVariable @NotBlank @ValidUUID showId: String,
-        @PathVariable @NotBlank @ValidTime startTime: String
-    ) =
-        schedulingService.rescheduleShow(
-            showId = UUID.fromString(showId),
-            newStartTime = startTime.toDateTime()
-        )
-
-    @PutMapping("/show/{showId}/roomId/{roomId}")
-    fun moveShow(
-        @PathVariable @NotBlank @ValidUUID showId: String,
-        @PathVariable @NotBlank @ValidUUID roomId: String
-    ) =
-        schedulingService.moveShow(
-            showId = UUID.fromString(showId),
-            newRoomId = UUID.fromString(roomId)
-        )
-
-    @PutMapping("/show/{showId}/roomId/{roomId}/startTime/{startTime}")
+    @PutMapping(path = ["/show/{showId}", "/show/{showId}/room/{roomId}"])
     fun changeShow(
         @PathVariable @NotBlank @ValidUUID showId: String,
-        @PathVariable @NotBlank @ValidUUID roomId: String,
-        @PathVariable @NotBlank @ValidTime startTime: String
+        @PathVariable(required = false) @ValidUUID roomId: String?,
+        @RequestBody @ValidDateTime startTime: String?
     ) =
         schedulingService.changeShow(
             showId = UUID.fromString(showId),
-            newRoomId = UUID.fromString(roomId),
-            newStartTime = startTime.toDateTime()
+            newRoomId = roomId?.let(UUID::fromString),
+            newStartTime = startTime?.toDateTime()
         )
+
 }

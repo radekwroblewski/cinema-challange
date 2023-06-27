@@ -9,10 +9,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.mockito.kotlin.*
-import java.rmi.UnexpectedException
 import java.time.Duration
-import java.util.UUID
-import kotlin.random.Random
+import java.util.*
 
 class MovieServiceTest {
     private lateinit var testee: MovieService
@@ -81,7 +79,7 @@ class MovieServiceTest {
     fun `test delete movie`() {
         val movieId = UUID.randomUUID()
         whenever(movieRepository.remove(any())).thenAnswer {
-            if (it.arguments[0]!=movieId) {
+            if (it.arguments[0] != movieId) {
                 fail("Not expected here")
             }
         }
@@ -90,8 +88,6 @@ class MovieServiceTest {
         verify(movieRepository).remove(eq(movieId))
 
     }
-
-
 
 
 }

@@ -1,6 +1,5 @@
 package com.rdk.cinemachallenge.model
 
-import com.rdk.cinemachallenge.testutils.isBeforeOrEq
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 import java.util.*

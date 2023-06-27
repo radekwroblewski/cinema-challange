@@ -6,14 +6,11 @@ import com.rdk.cinemachallenge.model.*
 import com.rdk.cinemachallenge.testutils.mapCleaningPeriod
 import com.rdk.cinemachallenge.testutils.mapShow
 import com.rdk.cinemachallenge.validator.ScheduleValidator
-import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.lang.IllegalArgumentException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.ConcurrentModificationException
 
 @Service
 class SchedulingService(
@@ -61,12 +58,6 @@ class SchedulingService(
     fun cancelShow(showId: UUID) {
         showRepository.removeShow(showId)
     }
-
-    fun rescheduleShow(showId: UUID, newStartTime: LocalDateTime) =
-        changeShow(showId = showId, newStartTime = newStartTime)
-
-    fun moveShow(showId: UUID, newRoomId: UUID) =
-        changeShow(showId = showId, newRoomId = newRoomId)
 
     fun changeShow(showId: UUID, newRoomId: UUID? = null, newStartTime: LocalDateTime? = null): String {
         val show = showRepository.getShow(showId)
